@@ -190,41 +190,6 @@ do
     
 done
 
-################# maybe split here ########################
-
-# GATK: begin mutant calling workflow
-echo -e "\n>>> GATK: run MarkDuplicates:"
-gatkOut=$outputdir"04_gatk/"
-mkdir -p $gatkOut
-
-for seqname in ${names[@]}
-do
-  gatk MarkDuplicates -I ${samout}${seqname}.bam \
-  -O ${gatkOut}${seqname}.markdup.bam \
-  --TMP_DIR ${tmpDir} \
-  --METRICS_FILE ${gatkOut}${name}_markdups.txt
-done
-
-gatk AddOrReplaceReadGroups \
--I ${samout}${seqname}.bam \
--O ${gatkOut}${seqname}.RG.bam \
--SORT_ORDER coordinate \
--RGID ${seqname} \
--RGLB ${seqname} \
--RGPU unit1 \
--RGPL ILLUMINA \
--RGSM ${name} \
---TMP_DIR ${tmpDir} \
--CREATE_INDEX True
-
-#fix known-sites
-gatk BaseRecalibrator \
--I ${samout}${seqname}.bam \
--R ${genomeFA} \
---known-sites /scratch/alpine/adh91@colostate.edu/WES/03_GATK/rename.broad_umass_canid_variants.1.2.vcf.gz \
---known-sites /projects/adh91@colostate.edu/references/Ensembl.CanFam3.1/canis_lupus_familiaris.vcf.gz \
--O ${name}.recal_data.table \
---tmp-dir ${tmpDir}
 
 
 
