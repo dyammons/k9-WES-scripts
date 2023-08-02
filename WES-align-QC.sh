@@ -6,30 +6,25 @@ EXPERIMENT="creativeName"
 
 ### Path to input directory (modify if the files live in subdirectories) - can be absolute or relative
 inputdir="/pwd/to/input/"
+
+### Path to tmp directory (dir will be made if does not already exist)- can be absolute or relative
 tmpDir="/scratch/alpine/$USER/tmp/"
+
+
 ### This is the path to the metadata -- can specify or it will be pulled from the sbatch file when you run this script
 metadata=$1
 
-### Path to reference BWZ index
-# bwaIndex="/fs/scratch/PAS1562/sophie/proj01_crispr/01_input/ref/crisprI.csv"
+### Path to reference genome
 genomeFA="/projects/adh91@colostate.edu/references/Ensembl.CanFam3.1/Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa"
 
-
+#do you want to run QC before trimming files?
 runPREQC=FALSE
 
 #if samples are split across two lanes, this will concatinate the files if set to TRUE
 multiLane=TRUE
 
-### List of contrasts to run using mageck test -- first column = sample1; second = sample2; thrid = name of contrast for output -- will run sample1 vs sample2
-### set runContrasts to FALSE if you wish to skip this step
-runContrasts=TRUE
-desiredContrasts="/fs/scratch/PAS1562/sophie/proj01_crispr/01_input/contrasts_crisprA-NGS.csv"
-
 ### Set the output directory
 outputdir="../03_output/"$EXPERIMENT"_output/"
-
-### IMPORTANT: scroll down and modify the fastx_trimmer (cmd2) to match requirments for the given study ###
-
 
 ########## DONE MODIFYING ###############
 
@@ -142,7 +137,7 @@ wait
 
 # BWA to align to the genome
 echo -e "\n>>> BWA: aligning each sample to the genome"
-outBWA=$outputdir"02_bwa/"
+outBWA=$outputdir"03_bwa/"
 mkdir -p $outBWA
 
 for (( counter=0; counter < ${#samples1[@]}; counter++ ))
@@ -153,12 +148,12 @@ do
 
 
     ## execute BWA
-    cmd2="bwa mem -t $pthread \
+    cmd3="bwa mem -t $pthread \
     $genomeFA \
     ${samplename}_val_1.fq ${samplename}_val_2.fq > ${outBWA}${samplename}_cfam3.1.sam"
 
-    echo -e "\t$ ${cmd2}"
-    time eval $cmd2
+    echo -e "\t$ ${cmd3}"
+    time eval $cmd3
 
 done
 
@@ -190,6 +185,18 @@ do
     
 done
 
+######## VERSIONS #############
+echo -e "\n>>> VERSIONS:"
+echo -e "\n>>> FASTQC VERSION:"
+$fastqc --version
+echo -e "\n>>> trim_galore VERSION:"
+$trim_galore --version
+echo -e "\n>>> BWA VERSION:"
+$bwa --version
+echo -e "\n>>> SAMTOOLS VERSION:"
+$samtools --version
+
+echo -e ">>> END: Analayzer complete."
 
 
 
