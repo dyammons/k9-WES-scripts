@@ -51,8 +51,7 @@ names=( $(cut -f1 --output-delimiter=' ' samples.tmp) )
 ####### PIPELINE ##############
 
 # update the user
-echo -e ">>> INPUT: This script will process files from the metafile:\n\t$metadata"
-echo -e ">>> PLAN: This script will process the sample files into the following names: "
+echo -e ">>> PLAN: This script will process the following samples: "
 echo -e "NAMES"
 
 for (( counter=0; counter < ${#names[@]}; counter++ ))
@@ -153,7 +152,7 @@ echo -e "\n>>> trim_galore VERSION:"
 $trim_galore --version
 
 
-echo -e ">>> END: Analayzer complete."
+echo -e ">>> END: WES-QC-trim complete."
 
 
 
