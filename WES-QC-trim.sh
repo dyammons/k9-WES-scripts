@@ -10,7 +10,7 @@ inputdir="/pwd/to/input/"
 tmpDir="/scratch/alpine/$USER/tmp/"
 
 ### Ensure this command will generate a list of all sample names -- can run beforehand to test if desired
-(cd ${inputdir} && ls *.fq) | cut -d"_" -f1 | sort -u > samples.txt
+sampleList=$1
 
 #do you want to run QC before trimming files?
 runPREQC=FALSE
@@ -27,7 +27,7 @@ outputdir="../03_output/"$EXPERIMENT"_output/"
 echo -e ">>> INITIATING QC and trim with command:\n\t$0 $@"
 
 # stash number of threads to used in sbatch job submission:
-pthread=$1
+pthread=$2
 
 # create main output directory
 echo -e ">>> MAKING main output directory"
@@ -39,7 +39,7 @@ mkdir -p $tmpDir #also make tmp dir if not already in existance
 ####### META DATA #############
 
 # this is the nickname to give the files
-names=( $(cut -f1 --output-delimiter=' ' samples.txt) )
+names=( $(cut -f1 --output-delimiter=' ' $sampleList) )
 
 
 ####### PIPELINE ##############
