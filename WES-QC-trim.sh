@@ -15,9 +15,6 @@ metadata=$1
 ### Ensure this command will generate a list of all sample names -- can run beforehand to test if desired
 (cd ${inputdir} && ls *.fq) | cut -d"_" -f1 | sort -u > samples.tmp
 
-### Path to reference genome
-genomeFA="/projects/adh91@colostate.edu/references/Ensembl.CanFam3.1/Canis_lupus_familiaris.CanFam3.1.dna.toplevel.fa"
-
 #do you want to run QC before trimming files?
 runPREQC=FALSE
 runPOSTQC=TRUE
@@ -46,10 +43,6 @@ mkdir -p $tmpDir #also make tmp dir if not already in existance
 
 
 ####### META DATA #############
-while read line
-do
-     echo $line"_R1.fastq,"$line"_R2.fastq,"$line >> metadata.csv
-done < samples.tmp
 
 # this is the nickname to give the files
 names=( $(cut -f1 --output-delimiter=' ' samples.tmp) )
