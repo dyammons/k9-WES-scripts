@@ -12,8 +12,7 @@ inputdir="/pwd/to/input/"
 ### Path to tmp directory (dir will be made if does not already exist)- can be absolute or relative
 tmpDir="/scratch/alpine/$USER/tmp/"
 
-### This is the path to the metadata -- can specify or it will be pulled from the sbatch file when you run this script
-#this should point to the samples.txt file generate in the QC and trim script
+### This will be populated by the mkBatch-align.sh script
 sampleList=$1
 
 ### Path to reference genome
@@ -44,7 +43,7 @@ mkdir -p $tmpDir #also make tmp dir if not already in existance
 ####### META DATA #############
 
 # this is the nickname to give the files
-names=( $(cut -f1 --output-delimiter=' ' samples.tmp) )
+names=( $(cut -f1 --output-delimiter=' ' $sampleList) )
 
 
 ####### PIPELINE ##############
@@ -65,7 +64,7 @@ echo -e "\n>>> BWA: aligning each sample to the genome"
 outBWA=$outputdir"03_bwa/"
 mkdir -p $outBWA
 
-for (( counter=0; counter < ${#samples1[@]}; counter++ ))
+for (( counter=0; counter < ${#names[@]}; counter++ ))
 do
     samplename=${names[$counter]}
 
@@ -109,10 +108,6 @@ done
 
 ######## VERSIONS #############
 echo -e "\n>>> VERSIONS:"
-echo -e "\n>>> FASTQC VERSION:"
-$fastqc --version
-echo -e "\n>>> trim_galore VERSION:"
-$trim_galore --version
 echo -e "\n>>> BWA VERSION:"
 $bwa --version
 echo -e "\n>>> SAMTOOLS VERSION:"
