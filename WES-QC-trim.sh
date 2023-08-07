@@ -9,18 +9,12 @@ inputdir="/pwd/to/input/"
 ### Path to tmp directory (dir will be made if does not already exist)- can be absolute or relative
 tmpDir="/scratch/alpine/$USER/tmp/"
 
-### This is the path to the metadata -- can specify or it will be pulled from the sbatch file when you run this script
-metadata=$1
-
 ### Ensure this command will generate a list of all sample names -- can run beforehand to test if desired
-(cd ${inputdir} && ls *.fq) | cut -d"_" -f1 | sort -u > samples.tmp
+(cd ${inputdir} && ls *.fq) | cut -d"_" -f1 | sort -u > samples.txt
 
 #do you want to run QC before trimming files?
 runPREQC=FALSE
 runPOSTQC=TRUE
-
-#if samples are split across two lanes, this will concatinate the files if set to TRUE
-multiLane=TRUE
 
 ### Set the output directory
 outputdir="../03_output/"$EXPERIMENT"_output/"
@@ -33,7 +27,7 @@ outputdir="../03_output/"$EXPERIMENT"_output/"
 echo -e ">>> INITIATING QC and trim with command:\n\t$0 $@"
 
 # stash number of threads to used in sbatch job submission:
-pthread=$2
+pthread=$1
 
 # create main output directory
 echo -e ">>> MAKING main output directory"
@@ -45,7 +39,7 @@ mkdir -p $tmpDir #also make tmp dir if not already in existance
 ####### META DATA #############
 
 # this is the nickname to give the files
-names=( $(cut -f1 --output-delimiter=' ' samples.tmp) )
+names=( $(cut -f1 --output-delimiter=' ' samples.txt) )
 
 
 ####### PIPELINE ##############
