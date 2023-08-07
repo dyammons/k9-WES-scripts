@@ -115,7 +115,6 @@ else
 fi
 
 
-
 #### STEP2: Trimgalore to trim reads
 echo -e "\n>>> trim_galore: Trimgalore reads to size"
 mkdir -p $outputdir"02_trim_galore"
