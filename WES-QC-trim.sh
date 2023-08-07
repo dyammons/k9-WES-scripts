@@ -115,23 +115,22 @@ fi
 echo -e "\n>>> trim_galore: Trimgalore reads to size"
 mkdir -p $outputdir"02_trim_galore"
 
-for (( counter=0; counter < ${#sample_list1[@]}; counter++ ))
+for (( counter=0; counter < ${#names[@]}; counter++ ))
 do
 
-    samplename=${names[$counter]}
-    sample1=${sample_list1[$counter]}
-    sample2=${sample_list2[$counter]}
+    sample1=${names[$counter]}"_R1.fastq"
+    sample2=${names[$counter]}"_R2.fastq"
     
     # execute trim_galore +/- fastqc
 	if [ $runPOSTQC == TRUE ]
 	then
-		cmd2="trim_galore --paired $inputdir/$sample1 $inputdir/$sample2 \
+		cmd2="trim_galore --paired $outCat/$sample1 $outCat/$sample2 \
 		-o $outputdir"02_trim_galore" \
 		--basename $samplename \
 		--fastqc \
 		-q 30 &" 
 	else
-		cmd2="trim_galore --paired $inputdir/$sample1 $inputdir/$sample2 \
+		cmd2="trim_galore --paired $outCat/$sample1 $outCat/$sample2 \
 		-o $outputdir"02_trim_galore" \
 		--basename $samplename \
 		-q 30 &"
