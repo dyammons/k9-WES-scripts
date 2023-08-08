@@ -5,9 +5,9 @@
 #this should be the same as the trim step for seemless useage
 EXPERIMENT="creativeName"
 
-### Path to input directory (modify if the files live in subdirectories) - can be absolute or relative
+### Path to input directory - can be absolute or relative
 ### Input files will be the trimmed files
-inputdir="/pwd/to/input/"
+inputdir="../03_output/"$EXPERIMENT"_output/02_trim_galore/"
 
 ### Path to tmp directory (dir will be made if does not already exist)- can be absolute or relative
 tmpDir="/scratch/alpine/$USER/tmp/"
@@ -42,15 +42,15 @@ mkdir -p $tmpDir #also make tmp dir if not already in existance
 
 ####### META DATA #############
 
-# this is the nickname to give the files
+# this is a list of the sample names that will be used for looping
 names=( $(cut -f1 --output-delimiter=' ' $sampleList) )
 
 
 ####### PIPELINE ##############
 
 # update the user
-echo -e ">>> INPUT: This script will process files from the metafile:\n\t$metadata"
-echo -e ">>> PLAN: This script will process the sample files into the following names: "
+echo -e ">>> INPUT: This script will process files from the metafile:\n\t$sampleList"
+echo -e ">>> PLAN: This script will process the following samples: "
 echo -e "NAMES"
 
 for (( counter=0; counter < ${#names[@]}; counter++ ))
@@ -71,7 +71,7 @@ do
     ## execute BWA
     cmd3="bwa mem -t $pthread \
     $genomeFA \
-    ${samplename}_val_1.fq ${samplename}_val_2.fq > ${outBWA}${samplename}_cfam3.1.sam"
+    ${inputdir}${samplename}_val_1.fq ${inputdir}${samplename}_val_2.fq > ${outBWA}${samplename}_cfam3.1.sam"
 
     echo -e "\t$ ${cmd3}"
     time eval $cmd3
@@ -113,7 +113,7 @@ $bwa --version
 echo -e "\n>>> SAMTOOLS VERSION:"
 $samtools --version
 
-echo -e ">>> END: Analayzer complete."
+echo -e ">>> END: Alignment complete."
 
 
 
