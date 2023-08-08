@@ -9,11 +9,13 @@ inputdir="/pwd/to/input/"
 ### Path to tmp directory (dir will be made if does not already exist)- can be absolute or relative
 tmpDir="/scratch/alpine/$USER/tmp/"
 
-### Ensure this command will generate a list of all sample names -- can run beforehand to test if desired
+### Ensure this point to a list of all sample names (Note: $1 is the first term after the script when calling `bash`.
 sampleList=$1
 
-#do you want to run QC before trimming files?
+#do you want to run QC before trimming files? (reccomend FALSE)
 runPREQC=FALSE
+
+#do you want to run QC after trimming files? (reccomend TRUE)
 runPOSTQC=TRUE
 
 ### Set the output directory
@@ -38,12 +40,11 @@ mkdir -p $tmpDir #also make tmp dir if not already in existance
 
 ####### META DATA #############
 
-# this is the nickname to give the files
+# this is a list of the sample names that will be used for looping
 names=( $(cut -f1 --output-delimiter=' ' $sampleList) )
 
 
 ####### PIPELINE ##############
-
 # update the user
 echo -e ">>> PLAN: This script will process the following samples: "
 echo -e "NAMES"
@@ -61,15 +62,20 @@ mkdir -p $outCat
 
 for (( counter=0; counter < ${#names[@]}; counter++ ))
 do
+	#stash sample name
 	samplename=${names[$counter]}
-	
-	testNum=( $(ls ${inputdir}/${samplename}*R1* | wc -l ))
-	if [ $testNum > 1 ]
+
+ 	#check if there are more than 1 R1 or R2 files for each sample
+	testNum1=( $(ls ${inputdir}/${samplename}*R1* | wc -l ))
+ 	testNum2=( $(ls ${inputdir}/${samplename}*R2* | wc -l ))
+	if [ $testNum1 > 1 ] || [ $testNum2 > 1 ]
 	then
-    	cmd01="cat ${inputdir}/${samplename}_*R1* > ${outCat}/${samplename}_R1.fastq"
-    	cmd02="cat ${inputdir}/${samplename}_*R2* > ${outCat}/${samplename}_R2.fastq"
+    		#if more than one R1 or R2 files for a given sample, then cat and rename them
+      		cmd01="cat ${inputdir}/${samplename}_*R1* > ${outCat}/${samplename}_R1.fastq"
+    		cmd02="cat ${inputdir}/${samplename}_*R2* > ${outCat}/${samplename}_R2.fastq"
 	else
-		cmd01="mv ${inputdir}/${samplename}_*R1* ${outCat}/${samplename}_R1.fastq"
+		#if one R1 or R2 file for a given sample, then mv and rename them
+  		cmd01="mv ${inputdir}/${samplename}_*R1* ${outCat}/${samplename}_R1.fastq"
 		cmd02="mv ${inputdir}/${samplename}_*R2* ${outCat}/${samplename}_R2.fastq"
 	fi
 	  
@@ -86,7 +92,7 @@ then
     mkdir -p $outputdir"01_fastqc_pre"    
 
     # execute fastqc pre trim
-    cmd1="fastqc -o ${outputdir}01_fastqc_pre -t $pthread ${outCat}/*.fastq"
+    cmd1="fastqc -o ${outputdir}01_fastqc_pre -t $pthread ${outCat}*.fastq"
 
     echo -e "\t$ ${cmd1}"
     time eval $cmd1
@@ -108,29 +114,30 @@ do
     sample2=${names[$counter]}"_R2.fastq"
     
     # execute trim_galore +/- fastqc
-	if [ $runPOSTQC == TRUE ]
-	then
-		cmd2="trim_galore --paired $outCat/$sample1 $outCat/$sample2 \
-		-o $outputdir"02_trim_galore" \
-		--basename $samplename \
-		--fastqc \
-		-q 30 &" 
-	else
-		cmd2="trim_galore --paired $outCat/$sample1 $outCat/$sample2 \
-		-o $outputdir"02_trim_galore" \
-		--basename $samplename \
-		-q 30 &"
-	fi
+    if [ $runPOSTQC == TRUE ]
+    then
+    	cmd2="trim_galore --paired $outCat/$sample1 $outCat/$sample2 \
+     	-o $outputdir"02_trim_galore" \
+	--basename $samplename \
+	--fastqc \
+	-q 30 &" 
+ 
+    else
+    	cmd2="trim_galore --paired $outCat/$sample1 $outCat/$sample2 \
+	-o $outputdir"02_trim_galore" \
+	--basename $samplename \
+	-q 30 &"
+    fi
     
     echo -e "\t$ ${cmd2}"
     time eval $cmd2
 
-  #limit number of background jobs to the number of threads used
-  if [[ $(jobs -r -p | wc -l) -ge $pthread ]]
-  then
-    wait -n
-  fi
-    
+   #limit number of background jobs to the number of threads used
+   if [[ $(jobs -r -p | wc -l) -ge $pthread ]]
+   then
+   	wait -n
+   fi
+
 done
 
 wait
