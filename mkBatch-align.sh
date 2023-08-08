@@ -3,7 +3,7 @@
 ########################################################################
 #  Function: automate job script creation for multiple WES samples!  #
 #                                                                      #
-#  Useage: mkBatch-align.sh samples.txt                                           #
+#  Useage: bash mkBatch-align.sh samples.txt                                           #
 #                                                                      #
 #                                                                      #
 #  Requirments: update the user preferences below                      #
