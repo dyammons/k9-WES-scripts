@@ -51,7 +51,7 @@ for val in "${StringArray[@]}"; do
 	echo "" >> cute_bwa_align_$val.sbatch
 	echo "##### Call bash script #####" >> cute_bwa_align_$val.sbatch
 	echo "" >> cute_bwa_align_$val.sbatch
-	echo "bash WES-align.sh $val" >> cute_bwa_align_$val.sbatch
+	echo "bash WES-align.sh $val $numTasks" >> cute_bwa_align_$val.sbatch
 	echo "" >> cute_bwa_align_$val.sbatch
 	
 	#create list of cmds    
